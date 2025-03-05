@@ -1,39 +1,90 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.express as px
 
-# Load dataset
+# Load Data
 day_df = pd.read_csv("data/day.csv")
 hour_df = pd.read_csv("data/hour.csv")
 
-# Title
-st.title("Dashboard Analisis Data Bike Sharing")
+# Rename Columns for Better Readability
+day_df.rename(columns={
+    "season": "Musim",
+    "yr": "Tahun",
+    "mnth": "Bulan",
+    "holiday": "Hari_Libur",
+    "weekday": "Hari_Minggu",
+    "workingday": "Hari_Kerja",
+    "weathersit": "Cuaca",
+    "temp": "Suhu",
+    "atemp": "Suhu_Terasa",
+    "hum": "Kelembaban",
+    "windspeed": "Kecepatan_Angin",
+    "casual": "Pengguna_Kasual",
+    "registered": "Pengguna_Terdaftar",
+    "cnt": "Total_Pengguna"
+}, inplace=True)
 
-# Sidebar
+hour_df.rename(columns={
+    "season": "Musim",
+    "yr": "Tahun",
+    "mnth": "Bulan",
+    "hr": "Jam",
+    "holiday": "Hari_Libur",
+    "weekday": "Hari_Minggu",
+    "workingday": "Hari_Kerja",
+    "weathersit": "Cuaca",
+    "temp": "Suhu",
+    "atemp": "Suhu_Terasa",
+    "hum": "Kelembaban",
+    "windspeed": "Kecepatan_Angin",
+    "casual": "Pengguna_Kasual",
+    "registered": "Pengguna_Terdaftar",
+    "cnt": "Total_Pengguna"
+}, inplace=True)
+
+# Streamlit UI Setup
+st.set_page_config(page_title="Dashboard Bike Sharing", layout="wide")
+st.title("📊 Dashboard Analisis Data Bike Sharing")
+st.markdown("---")
+
+# Sidebar for Filtering
 st.sidebar.header("Filter Data")
-season_filter = st.sidebar.selectbox("Pilih Musim", day_df['season'].unique())
-weather_filter = st.sidebar.selectbox("Pilih Cuaca", day_df['weathersit'].unique())
+selected_season = st.sidebar.selectbox("Pilih Musim", day_df["Musim"].unique())
+selected_weather = st.sidebar.selectbox("Pilih Cuaca", day_df["Cuaca"].unique())
+selected_hour = st.sidebar.slider("Pilih Jam", 0, 23, (0, 23))
 
-# Filter Data
-day_filtered = day_df[(day_df['season'] == season_filter) & (day_df['weathersit'] == weather_filter)]
+# Apply Filters
+day_filtered_df = day_df[(day_df["Musim"] == selected_season) & (day_df["Cuaca"] == selected_weather)]
+hour_filtered_df = hour_df[(hour_df["Musim"] == selected_season) & (hour_df["Cuaca"] == selected_weather) & (hour_df["Jam"].between(selected_hour[0], selected_hour[1]))]
 
-# Visualisasi 1: Pengaruh Musim terhadap Penyewaan Sepeda
-st.subheader("Pengaruh Musim terhadap Penyewaan Sepeda")
-fig, ax = plt.subplots(figsize=(8,5))
-sns.boxplot(x=day_df['season'], y=day_df['cnt'], ax=ax)
-st.pyplot(fig)
+# Display Data
+st.write("### Data Harian")
+st.dataframe(day_filtered_df.style.format({"Suhu": "{:.2f}", "Kelembaban": "{:.2f}", "Kecepatan_Angin": "{:.2f}"}))
 
-# Visualisasi 2: Pengaruh Cuaca terhadap Penyewaan Sepeda
-st.subheader("Pengaruh Cuaca terhadap Penyewaan Sepeda")
-fig, ax = plt.subplots(figsize=(8,5))
-sns.boxplot(x=day_df['weathersit'], y=day_df['cnt'], ax=ax)
-st.pyplot(fig)
+st.write("### Data Per Jam")
+st.dataframe(hour_filtered_df.style.format({"Suhu": "{:.2f}", "Kelembaban": "{:.2f}", "Kecepatan_Angin": "{:.2f}"}))
 
-# Visualisasi 3: Penyewaan Sepeda berdasarkan Jam
-st.subheader("Jumlah Penyewaan Sepeda berdasarkan Jam")
-fig, ax = plt.subplots(figsize=(10,5))
-sns.lineplot(x=hour_df['hr'], y=hour_df['cnt'], estimator='mean', ci=None, ax=ax)
-st.pyplot(fig)
+# Visualization Layout
+col1, col2 = st.columns(2)
 
-st.sidebar.write("Dashboard by [Nama Anda]")
+with col1:
+    fig = px.bar(day_filtered_df, x="Bulan", y="Total_Pengguna", title=f"Penggunaan Sepeda di Musim {selected_season}", color="Bulan")
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    fig2 = px.box(day_filtered_df, x="Cuaca", y="Total_Pengguna", title=f"Distribusi Penggunaan Sepeda Berdasarkan Cuaca", color="Cuaca")
+    st.plotly_chart(fig2, use_container_width=True)
+
+st.markdown("## 📌 Analisis Per Jam")
+fig3 = px.line(hour_filtered_df, x="Jam", y="Total_Pengguna", title=f"Tren Penggunaan Sepeda Per Jam di Musim {selected_season}", color="Hari_Kerja")
+st.plotly_chart(fig3, use_container_width=True)
+
+# Insights Section
+st.markdown("## 📌 Insight")
+st.write("- **Penggunaan sepeda cenderung lebih tinggi pada musim tertentu.**")
+st.write("- **Cuaca mempengaruhi jumlah pengguna sepeda secara signifikan.**")
+st.write("- **Kelembaban dan kecepatan angin mungkin berdampak pada jumlah pengguna.**")
+st.write("- **Tren penggunaan sepeda berbeda antara hari kerja dan akhir pekan.**")
+
+st.markdown("---")
+st.caption("📌 Dibuat dengan ❤️ menggunakan Streamlit dan Plotly")
