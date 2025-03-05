@@ -87,4 +87,4 @@ st.write("- **Kelembaban dan kecepatan angin mungkin berdampak pada jumlah pengg
 st.write("- **Tren penggunaan sepeda berbeda antara hari kerja dan akhir pekan.**")
 
 st.markdown("---")
-st.caption("📌 Dibuat dengan ❤️ menggunakan Streamlit dan Plotly")
+st.caption("📌 Dibuat oleh Mohammad Rafi Habibi Sembiring")
