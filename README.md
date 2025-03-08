@@ -39,7 +39,7 @@ submission/
    ```bash
    streamlit run dashboard/dashboard.py
    ```
-3. The dashboard will be available at `http://localhost:8501/`.
+3. The dashboard will be available at `[http://localhost:8501/](https://submission-mc013d5y2206.streamlit.app/)`.
 
 ## Deployment
 The dashboard is deployed on Streamlit Cloud. You can access it using the following link:
