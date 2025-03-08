@@ -44,7 +44,7 @@ submission/
 ## Deployment
 The dashboard is deployed on Streamlit Cloud. You can access it using the following link:
 ```
-[Insert Streamlit Cloud URL here]
+https://submission-mc013d5y2206.streamlit.app/
 ```
 
 ## License
