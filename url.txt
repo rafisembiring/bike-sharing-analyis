@@ -1,1 +1,1 @@
-`http://localhost:8501/`
+`https://submission-mc013d5y2206.streamlit.app/`
